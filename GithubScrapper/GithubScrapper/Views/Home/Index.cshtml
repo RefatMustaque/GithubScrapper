@@ -1,0 +1,46 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container">
+    <section class="hero-section text-center">
+        <h1 class="display-4">Welcome to GithubScrapper</h1>
+        <p class="lead">Your ultimate tool for scraping GitHub repositories easily and efficiently!</p>
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <h2>How it Works</h2>
+            <p>GithubScrapper allows you to easily scrape public GitHub repository data. Simply login and start scraping repositories to gather information for your projects!</p>
+        }
+    </section>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mt-5">
+                <div class="card-body">
+                    @if (!User.Identity.IsAuthenticated)
+                    {
+                        <h2>Authentication</h2>
+                        <p>Login to access advanced features and start scraping your favorite repositories!</p>
+                    }
+
+                    <section class="container mt-5 text-center">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+
+                                <h2>How it Works</h2>
+                                <p>GithubScrapper allows you to easily scrape public GitHub repository data. Simply login and start scraping repositories to gather information for your projects!</p>
+                                <a href="/Github/ScrapeRepositories" class="btn btn-primary">Start Scraping</a>
+
+                        }
+                        else
+                        {
+                            <p><a class="btn btn-primary mt-3" asp-controller="Account" asp-action="Login">Login with GitHub</a></p>
+                        }
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
