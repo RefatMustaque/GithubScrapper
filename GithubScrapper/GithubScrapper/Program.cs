@@ -1,11 +1,20 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
+using GithubScrapper.Services;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddTransient<IGithubService, GithubService>();
 
 builder.Services.AddSession(options =>
 {
@@ -45,6 +54,8 @@ builder.Services.AddAuthentication(options =>
             var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
             request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", context.AccessToken);
+            // Save the access token as a claim
+            context.Identity.AddClaim(new Claim("access_token", context.AccessToken));
 
             var response = await context.Backchannel.SendAsync(request);
             response.EnsureSuccessStatusCode();
@@ -58,6 +69,9 @@ builder.Services.AddAuthentication(options =>
 });
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();  // Ensure this is called before other middlewares
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

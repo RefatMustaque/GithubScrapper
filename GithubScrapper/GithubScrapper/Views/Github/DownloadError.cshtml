@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "_Layout"; // Use your layout page if needed
+}
+
+<div class="container">
+    <h2>Download Error</h2>
+
+    <!-- Display the error message -->
+    <p class="text-danger">
+        The file <strong>@ViewData["FileName"]</strong> is no longer available. It may have been deleted or expired.
+    </p>
+
+    <a asp-action="ScrapeRepositories" asp-controller="Github" >
+        Back to Scrape Repositories
+    </a>
+</div>

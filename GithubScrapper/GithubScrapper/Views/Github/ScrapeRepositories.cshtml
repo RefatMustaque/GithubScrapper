@@ -5,7 +5,9 @@
 }
 
 <h1>@ViewData["Title"]</h1>
-
+<!-- Render the Rate Limit Partial View -->
+<!-- Render the Rate Limit Partial View from the Controller Action -->
+<div class="rateLimitInfo row" >API Rate Limit: Loading...</div>
 <form id="scrapeForm">
     <div class="form-group">
         <label for="owner">GitHub Repository Owner:</label>
@@ -34,52 +36,162 @@
         </div>
     </div>
 
+    <!-- Radio buttons to select file type -->
+    <div class="form-group">
+        <label>Choose File Type:</label><br>
+        <input type="radio" id="txtFile" name="fileType" value="txt" checked />
+        <label for="txtFile">Text File</label><br>
 
-    <button type="submit" class="btn btn-primary">Scrape Repositories</button>
+        <input type="radio" id="htmlFile" name="fileType" value="html" />
+        <label for="htmlFile">Interactive HTML</label>
+    </div>
+
+    <div id="result" class="mt-3"></div>
+    <btn onclick="ScrapeRepository(event)" class="btn btn-primary">Scrape Repositories</btn>
+    <br />
+    <br />
+    <div class="card">
+        <div class="card-header">
+            <btn id="listFilesButton" class="btn btn-danger">Refresh Downloadable Files</btn>
+            <p>Files will be deleted once downloaded.</p>
+        </div>
+        <div class="card-body">
+            <ul id="fileList"></ul>
+        </div>
+    </div>
+
+
+
 </form>
 
-<div id="result" class="mt-3"></div>
+
 
 @section Scripts {
     <script>
-        // Select/Deselect all checkboxes
-        document.getElementById('selectAll').addEventListener('click', function () {
-            var checkboxes = document.querySelectorAll('input[name="fileExtensions"]');
-            var allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-
-            // Toggle checkboxes: check/uncheck based on the current state
-            checkboxes.forEach(checkbox => checkbox.checked = !allChecked);
-        });
+ 
         $(document).ready(function () {
-            $('#scrapeForm').on('submit', function (e) {
-                e.preventDefault();
+            // Select/Deselect all checkboxes
+            document.getElementById('selectAll').addEventListener('click', function () {
+                var checkboxes = document.querySelectorAll('input[name="fileExtensions"]');
+                var allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
 
-                var owner = $('#owner').val();
-                var repoName = $('#repoName').val();
-                var fileExtensions = [];
-
-                // Collect selected file extensions
-                $('input[name="fileExtensions"]:checked').each(function () {
-                    fileExtensions.push($(this).val());
-                });
-
-                // Make AJAX call
-                $.ajax({
-                    url: '@Url.Action("ExtractRepositories", "Github")',
-                    method: 'POST',
-                    data: {
-                        owner: owner,
-                        repoName: repoName,
-                        fileExtensions: fileExtensions
-                    },
-                    success: function (response) {
-                        $('#result').html('<pre>' + JSON.stringify(response, null, 2) + '</pre>');
-                    },
-                    error: function (error) {
-                        $('#result').html('<p class="text-danger">An error occurred while processing your request.</p>');
-                    }
-                });
+                // Toggle checkboxes: check/uncheck based on the current state
+                checkboxes.forEach(checkbox => checkbox.checked = !allChecked);
+            });
+            // Initial call to populate the rate limit info
+            updateRateLimitInfo();
+            listFiles();
+            // Trigger the AJAX call to fetch files
+            $("#listFilesButton").click(function () {
+                listFiles();
             });
         });
+
+        function ScrapeRepository(e) {
+            $("#rateLimitInfoModalId").show();
+
+            e.preventDefault();
+
+            var owner = $('#owner').val();
+            var repoName = $('#repoName').val();
+            var fileExtensions = [];
+            var fileType = $('input[name="fileType"]:checked').val();
+
+            // Collect selected file extensions
+            $('input[name="fileExtensions"]:checked').each(function () {
+                fileExtensions.push($(this).val());
+            });
+
+            // Make AJAX call
+            $.ajax({
+                url: '@Url.Action("ExtractRepositories", "Github")',
+                method: 'POST',
+                data: {
+                    owner: owner,
+                    repoName: repoName,
+                    fileExtensions: fileExtensions,
+                    fileType: fileType,
+                },
+                success: function (response) {
+                    $("#rateLimitInfoModalId").hide();
+                    if (response.success) {  // Use response.success to check for success
+                        $('#result').fadeIn();
+                        // Success: Display the message and initiate file download
+                        $('#result').html(`
+                                        <p style="font-family: Arial, sans-serif; font-size: 14px; color: green;">
+                                            ${response.message}
+                                        </p>
+                                    `);
+
+                        // Trigger file download by opening the download URL in a new tab
+                        // const downloadUrl = `@Url.Action("DownloadFile", "Github")?fileName=${encodeURIComponent(response.fileName)}`;
+                        // window.open(downloadUrl, '_blank'); // Open the download URL in a new tabownloadUrl; // This will navigate to the new URL and download the file
+                        listFiles();
+                        updateRateLimitInfo();
+                        // Make the message disappear after 5 seconds
+                        $('#result').fadeOut(5000);
+                    }
+                    else {
+                        $('#result').fadeIn();
+                        // Failure: Display the error message
+                        $('#result').html(`
+                                        <p style="font-family: Arial, sans-serif; font-size: 14px; color: red;">
+                                            ${response.message}
+                                        </p>
+                                    `);
+                        updateRateLimitInfo();
+                        // Make the message disappear after 5 seconds
+                        $('#result').fadeOut(5000);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $("#rateLimitInfoModalId").hide();
+                    // Log the error for troubleshooting
+                    console.error('AJAX error:', status, error);
+
+                    // Generic error handler
+                    $('#result').html(`
+                                    <p style="font-family: Arial, sans-serif; font-size: 14px; color: red;">
+                                        An unexpected error occurred. Please try again later.
+                                    </p>
+                                `);
+                    updateRateLimitInfo();
+                    // Make the message disappear after 5 seconds
+                    setTimeout(function () {
+                        $('#result').fadeOut();
+                    }, 5000); // 5000 milliseconds = 5 seconds
+                }
+            });
+
+        };
+
+        function listFiles(){
+            $.ajax({
+                url: '@Url.Action("ListFilesInFolder", "Github")',  // This generates the correct URL for the controller action
+                method: 'GET',
+                success: function (response) {
+                    if (response.success) {
+                        // Clear previous results
+                        $('#fileList').empty();
+
+                        // Loop through the file list and append them to the HTML as download links
+                        response.files.forEach(function (file) {
+                            // Create a download link for each file
+                            var downloadUrl = `@Url.Action("DownloadFile", "Github")?fileName=${encodeURIComponent(file)}`;
+                            $('#fileList').append(`<li onclick='listFiles()'><a href="${downloadUrl}" target="_blank">${file}</a></li>`);
+                        });
+                    } else {
+                        // Handle failure
+                        $('#fileList').html('<p style="color:red;">' + response.message + '</p>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    // Handle any AJAX errors
+                    console.error('AJAX error:', status, error);
+                    $('#fileList').html('<p style="color:red;">An error occurred while fetching the files.</p>');
+                }
+            });
+        }
+
     </script>
 }

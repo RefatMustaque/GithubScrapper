@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Explore Refat Bin Mustaque's project showcasing expertise on scraping github project and repositories.">
     <title>@ViewData["Title"] - GithubScrapper</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -24,6 +25,18 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="https://rbmcodes.com" title="Refat Mustaque's Portfolio">My Portfolio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="https://blog.rbmcodes.com" title="Refat Mustaque's Blog">Blog</a>
+                        </li>
+                         <li class="nav-item">
+                            <a class="nav-link text-dark" href="https://linkedin.com/in/refatmustaque" title="Refat Mustaque on LinkedIn">Find me on LinkedIn</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="https://github.com/refatmustaque" title="Refat Mustaque on GitHub">Find me on GitHub</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
@@ -49,20 +62,89 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+    <div class="content-wrapper">
+        <div class="container">
             @RenderBody()
-        </main>
+        </div>
     </div>
 
     <footer class="border-top footer text-muted">
         <div class="container text-center">
-            &copy; 2024 - GithubScrapper - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2024 - GithubScrapper            
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script type="text/javascript">
+        // Call updateRateLimitInfo every 2 seconds (2000 milliseconds)
+        setInterval(updateRateLimitInfo, 2000);
+        let ajaxCallCount = 0;
+        let updateRateLimitCall = 0;
+
+
+        $(document).ajaxSend(function () {
+            ajaxCallCount++;
+
+            if (ajaxCallCount === 1 && updateRateLimitCall == 0) { // Show modal only when the first request starts
+                // debugger;
+                $("#modal-loading").fadeIn(250);
+            }
+
+        });
+
+        $(document).ajaxComplete(function () {
+            ajaxCallCount--;
+
+            if (ajaxCallCount === 0) { // Hide modal only when all requests are completed
+                // debugger;
+                $("#modal-loading").fadeOut(250);
+            }
+        });
+        function updateRateLimitInfo() {
+            updateRateLimitCall = 1;
+            $.ajax({
+                url: '@Url.Action("GetRateLimitStatus", "Github")',
+                method: 'GET',
+                success: function (data) {
+                    updateRateLimitCall = 0;
+                    const resetTime = new Date(data.resetTime).toLocaleTimeString(); // Convert reset time to local format
+                    let message = '';
+                    if(data.remaining == 0)
+                    {
+                        message = `Sorry you have reached the api limit. Please try again after ${resetTime}`;
+                    }
+                    else{
+                        message = `API Rate Limit: ${data.remaining} remaining out of ${data.total} (Reset at ${resetTime})`;
+                    }
+
+                    $('.rateLimitInfo').text(message);
+                },
+                error: function () {
+                    updateRateLimitCall = 0;
+                    $('.rateLimitInfo').text('API Rate Limit: Error');
+                },
+                complete:function (){
+                    updateRateLimitCall = 0;
+                }
+            });
+        }
+    </script>
+
 </body>
+<div class="modal" id="modal-loading" style="z-index:99999999999999999999" data-backdrop="static" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center" >
+                <div class="loading-spinner mb-2"></div>
+                <div>Loading</div>
+                <div id="rateLimitInfoModalId" style="display:none;" class="rateLimitInfo"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 </html>

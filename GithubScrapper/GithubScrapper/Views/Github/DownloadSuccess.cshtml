@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "_Layout"; // Use your layout page if needed
+}
+
+<div class="container">
+    <h2>File Downloaded Successfully</h2>
+
+    <!-- Display the success message -->
+    <p class="text-success">
+        The file <strong>@ViewData["FileName"]</strong> has been downloaded successfully.
+    </p>
+
+    <a asp-action="ScrapeRepositories" asp-controller="Github" >
+        Back to Scrape Repositories
+    </a>
+</div>
