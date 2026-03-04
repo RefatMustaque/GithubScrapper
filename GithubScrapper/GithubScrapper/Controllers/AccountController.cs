@@ -10,7 +10,7 @@ namespace GithubScrapper.Controllers
     {
         public IActionResult Login()
         {
-            return Challenge(new AuthenticationProperties { RedirectUri = @"/Account/Callback" }, "GitHub");
+            return Challenge(new AuthenticationProperties { RedirectUri = @"/" }, "GitHub");
         }
 
         //public IActionResult Logout()

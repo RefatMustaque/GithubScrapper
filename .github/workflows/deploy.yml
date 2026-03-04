@@ -1,0 +1,79 @@
+# Deploy to Linux Server
+#
+# This workflow builds and deploys the GithubScrapper app to a remote Linux server via SSH and rsync.
+# Each step is explained below.
+
+name: Deploy to Linux Server  # Workflow display name in GitHub Actions UI
+
+on:
+  push:                      # Trigger on every push
+  workflow_dispatch:         # Allow manual run from Actions tab
+
+concurrency:
+  group: deploy-githubscrapper  # Only one deploy at a time
+  cancel-in-progress: true      # Cancel previous if new one starts
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest      # Use latest Ubuntu runner
+
+    steps:
+      - name: Checkout         # Step: Checkout repo code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET       # Step: Install .NET SDK 8.x
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore          # Step: Restore NuGet packages
+        run: dotnet restore GithubScrapper/GithubScrapper/GithubScrapper.csproj
+
+      - name: Publish          # Step: Build and publish app to ./publish
+        run: dotnet publish GithubScrapper/GithubScrapper/GithubScrapper.csproj -c Release -o ./publish
+
+      - name: Start SSH Agent  # Step: Start SSH agent for key-based auth
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Load SSH key from secrets
+
+      - name: Add host key     # Step: Add server host key to known_hosts
+        env:
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          PORT="${SSH_PORT:-22}"
+          ssh-keyscan -p "$PORT" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Ensure target directory exists  # Step: Create /var/www/GithubScrapper if missing
+        env:
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          PORT="${SSH_PORT:-22}"
+          ssh -p "$PORT" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "mkdir -p /var/www/GithubScrapper"
+
+      - name: Backup existing files on server # Step: Backup all files except backups and appsettings.json
+        env:
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          PORT="${SSH_PORT:-22}"
+          ssh -p "$PORT" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" '
+            set -e
+            TARGET_DIR="/var/www/GithubScrapper"
+            BACKUP_DIR="$TARGET_DIR/bak_$(date +%Y%m%d_%H%M%S)"
+            mkdir -p "$BACKUP_DIR"
+            find "$TARGET_DIR" -mindepth 1 -maxdepth 1 \
+              ! -name "bak_*" \
+              ! -name "appsettings.json" \
+              -exec mv {} "$BACKUP_DIR"/ \;
+            # Also copy appsettings.json to backup folder
+            if [ -f "$TARGET_DIR/appsettings.json" ]; then
+              cp "$TARGET_DIR/appsettings.json" "$BACKUP_DIR/"
+            fi
+          '
+
+      - name: Sync files to server           # Step: Rsync published files to server, exclude appsettings.json
+        env:
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          PORT="${SSH_PORT:-22}"
+          rsync -az --exclude "appsettings.json" -e "ssh -p $PORT" ./publish/ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/GithubScrapper/"
