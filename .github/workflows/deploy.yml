@@ -77,8 +77,7 @@ jobs:
             if [ ! -d "$TARGET_DIR/AppFiles/downloads" ]; then
               mkdir -p "$TARGET_DIR/AppFiles/downloads"
             fi
-            chmod -R 755 "$TARGET_DIR/AppFiles"
-            chmod -R 755 "$TARGET_DIR/AppFiles/downloads"
+            sudo chown -R www-data:www-data /var/www/GithubScrapper/AppFiles
           '
 
       - name: Sync files to server           # Step: Rsync published files to server, exclude appsettings.json
