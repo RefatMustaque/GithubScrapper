@@ -80,6 +80,14 @@ jobs:
           PORT="${SSH_PORT:-22}"
           rsync -az --exclude "appsettings.json" -e "ssh -p $PORT" ./publish/ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/GithubScrapper/"
 
+        - name: Set permissions on AppFiles directory
+          env:
+            SSH_PORT: ${{ secrets.SSH_PORT }}
+          run: |
+            PORT="${SSH_PORT:-22}"
+            ssh -p "$PORT" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "chmod -R 755 /var/www/GithubScrapper/AppFiles"
+            echo "Permissions set on AppFiles directory."
+
       - name: Restart GithubScrapper service on server  # Step: Restart the service to apply new deployment
         env:
           SSH_PORT: ${{ secrets.SSH_PORT }}
