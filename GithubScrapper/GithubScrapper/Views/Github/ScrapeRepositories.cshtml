@@ -79,7 +79,8 @@
                 checkboxes.forEach(checkbox => checkbox.checked = !allChecked);
             });
             // Initial call to populate the rate limit info
-            updateRateLimitInfo();
+            // commented out to reduce API calls, as it is also called in the controller action that renders this view
+            //updateRateLimitInfo();
             listFiles();
             // Trigger the AJAX call to fetch files
             $("#listFilesButton").click(function () {
