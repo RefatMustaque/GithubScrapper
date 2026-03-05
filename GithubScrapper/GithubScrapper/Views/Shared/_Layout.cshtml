@@ -82,7 +82,8 @@
 
     <script type="text/javascript">
         // Call updateRateLimitInfo every 2 seconds (2000 milliseconds)
-        setInterval(updateRateLimitInfo, 2000);
+        // Note: This will make an API call every 2 seconds, which may contribute to hitting the rate limit faster. Use with caution.
+        //setInterval(updateRateLimitInfo, 2000);
         let ajaxCallCount = 0;
         let updateRateLimitCall = 0;
 
