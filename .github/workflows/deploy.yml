@@ -63,18 +63,22 @@ jobs:
             TARGET_DIR="/var/www/GithubScrapper"
             BACKUP_DIR="$TARGET_DIR/bak_$(date +%Y%m%d_%H%M%S)"
             mkdir -p "$BACKUP_DIR"
-            # Copy AppFiles directory and appsettings.json to backup folder
+            # Copy AppFiles, AppFiles/downloads, and appsettings.json to backup folder
             if [ -d "$TARGET_DIR/AppFiles" ]; then
               cp -r "$TARGET_DIR/AppFiles" "$BACKUP_DIR/"
             fi
             if [ -f "$TARGET_DIR/appsettings.json" ]; then
               cp "$TARGET_DIR/appsettings.json" "$BACKUP_DIR/"
             fi
-            # Ensure AppFiles exists and set permissions
+            # Ensure AppFiles and AppFiles/downloads exist and set permissions
             if [ ! -d "$TARGET_DIR/AppFiles" ]; then
               mkdir -p "$TARGET_DIR/AppFiles"
             fi
+            if [ ! -d "$TARGET_DIR/AppFiles/downloads" ]; then
+              mkdir -p "$TARGET_DIR/AppFiles/downloads"
+            fi
             chmod -R 755 "$TARGET_DIR/AppFiles"
+            chmod -R 755 "$TARGET_DIR/AppFiles/downloads"
           '
 
       - name: Sync files to server           # Step: Rsync published files to server, exclude appsettings.json
