@@ -70,6 +70,13 @@ jobs:
             if [ -f "$TARGET_DIR/appsettings.json" ]; then
               cp "$TARGET_DIR/appsettings.json" "$BACKUP_DIR/"
             fi
+            # Keep only the last 5 backup folders (including the new one)
+            BACKUPS=( $(ls -dt $TARGET_DIR/bak_* 2>/dev/null) )
+            if [ ${#BACKUPS[@]} -gt 5 ]; then
+              for OLD in "${BACKUPS[@]:5}"; do
+                rm -rf "$OLD"
+              done
+            fi
             # Ensure AppFiles and AppFiles/downloads exist and set permissions
             if [ ! -d "$TARGET_DIR/AppFiles" ]; then
               mkdir -p "$TARGET_DIR/AppFiles"
