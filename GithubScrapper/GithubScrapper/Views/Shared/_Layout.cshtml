@@ -4,7 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Explore Refat Bin Mustaque's project showcasing expertise on scraping github project and repositories.">
-    <title>@ViewData["Title"] - GitHub Scrapper - Refat Bin Mustaque</title>
+    @{
+        var isHome = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", System.StringComparison.OrdinalIgnoreCase)
+            && string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", System.StringComparison.OrdinalIgnoreCase);
+    }
+        <title>@(string.IsNullOrWhiteSpace(ViewData["Title"] as string) ? "GitHub Scrapper" : ViewData["Title"] + " - GitHub Scrapper")</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="icon" type="image/jpeg" href="~/images/logo.jpg" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
