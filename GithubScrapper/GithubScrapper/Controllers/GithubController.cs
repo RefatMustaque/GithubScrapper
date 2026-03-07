@@ -1,12 +1,12 @@
-﻿using GithubScrapper.Models.ViewModels;
-using GithubScrapper.Services;
+﻿using GitHubScrapper.Models.ViewModels;
+using GitHubScrapper.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Octokit;
 using System.Text;
 using System.Threading.RateLimiting;
 
-namespace GithubScrapper.Controllers
+namespace GitHubScrapper.Controllers
 {
     [Authorize]
     public class GithubController : Controller

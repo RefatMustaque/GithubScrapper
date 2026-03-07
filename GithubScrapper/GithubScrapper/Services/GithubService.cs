@@ -1,4 +1,4 @@
-﻿using GithubScrapper.Services;
+﻿using GitHubScrapper.Services;
 using Microsoft.VisualBasic;
 using Octokit;
 using System.IO;

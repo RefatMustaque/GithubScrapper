@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
-namespace GithubScrapper.Controllers
+namespace GitHubScrapper.Controllers
 {
     public class AccountController : Controller
     {

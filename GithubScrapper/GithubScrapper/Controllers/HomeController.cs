@@ -1,8 +1,8 @@
-using GithubScrapper.Models;
+using GitHubScrapper.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace GithubScrapper.Controllers
+namespace GitHubScrapper.Controllers
 {
     public class HomeController : Controller
     {

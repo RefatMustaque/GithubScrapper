@@ -1,4 +1,4 @@
-namespace GithubScrapper.Models
+namespace GitHubScrapper.Models
 {
     public class ErrorViewModel
     {

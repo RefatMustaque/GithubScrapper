@@ -1,6 +1,6 @@
 ﻿using Octokit;
 
-namespace GithubScrapper.Services
+namespace GitHubScrapper.Services
 {
     public interface IGithubService
     {

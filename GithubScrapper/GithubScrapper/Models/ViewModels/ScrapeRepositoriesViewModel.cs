@@ -1,4 +1,4 @@
-﻿namespace GithubScrapper.Models.ViewModels
+﻿namespace GitHubScrapper.Models.ViewModels
 {
     public class ScrapeRepositoriesViewModel
     {
