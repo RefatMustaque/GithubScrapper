@@ -3,16 +3,21 @@
 }
 
 <div class="container py-5">
-    <section class="hero-section text-center mb-5 p-5 rounded shadow-lg bg-gradient" style="background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);">
-        <h1 class="display-3 fw-bold mb-3" style="color: #2d3748;">Welcome to <span style="color: #6366f1;">GitHub Scrapper</span></h1>
-        <p class="lead mb-4" style="color: #4b5563;">Your ultimate tool for scraping GitHub repositories easily and efficiently!</p>
-        @if (!User.Identity.IsAuthenticated)
-        {
-            <h2 class="h4 mt-4" style="color: #6366f1;">How it Works</h2>
-            <p class="mb-0" style="color: #6b7280;">GitHub Scrapper allows you to easily scrape public GitHub repository data. Simply login and start scraping repositories to gather information for your projects!</p>
-        }
-
-        <!-- Privacy Policy link moved to footer -->
+    <section class="hero-section text-center mb-5 p-5 rounded shadow-lg bg-gradient position-relative overflow-hidden" style="background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%); min-height: 420px;">
+        <div class="row align-items-center justify-content-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h1 class="display-3 fw-bold mb-3" style="color: #2d3748;">Welcome to <span style="color: #6366f1;">GitHub Scrapper</span></h1>
+                <p class="lead mb-4" style="color: #4b5563;">Your ultimate tool for scraping GitHub repositories easily and efficiently!</p>
+                @if (!User.Identity.IsAuthenticated)
+                {
+                    <h2 class="h4 mt-4" style="color: #6366f1;">How it Works</h2>
+                    <p class="mb-0" style="color: #6b7280;">GitHub Scrapper allows you to easily scrape public GitHub repository data. Simply login and start scraping repositories to gather information for your projects!</p>
+                }
+            </div>
+            <div class="col-lg-6 d-flex justify-content-center">
+                <img src="~/images/github-scrapper-hero.jpg" alt="GitHub Scrapper Hero" class="img-fluid rounded-4 shadow" style="max-height: 320px; object-fit: cover; border: 4px solid #6366f1; background: #fff;" />
+            </div>
+        </div>
     </section>
 
     <div class="row justify-content-center">
