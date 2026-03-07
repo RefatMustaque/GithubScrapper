@@ -2,6 +2,54 @@ html {
   font-size: 14px;
 }
 
+/* Modern card and form enhancements */
+.bg-gradient-primary {
+  background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%) !important;
+}
+.rounded-top-4 {
+  border-top-left-radius: 1.5rem !important;
+  border-top-right-radius: 1.5rem !important;
+}
+.rounded-4 {
+  border-radius: 1.5rem !important;
+}
+.shadow-lg {
+  box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+}
+.form-label {
+  font-size: 1.1rem;
+}
+.form-control-lg {
+  font-size: 1.1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+}
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  border-radius: 0.75rem;
+}
+.list-group-item {
+  border: none;
+  padding-left: 0;
+}
+.list-group-flush > .list-group-item {
+  border-width: 0 0 1px;
+}
+.fw-semibold {
+  font-weight: 600 !important;
+}
+.text-muted {
+  color: #6c757d !important;
+}
+.w-100 {
+  width: 100% !important;
+}
+.g-2 > * {
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+}
+
 @media (min-width: 768px) {
   html {
     font-size: 16px;

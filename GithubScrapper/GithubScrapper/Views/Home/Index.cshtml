@@ -2,39 +2,37 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="container">
-    <section class="hero-section text-center">
-        <h1 class="display-4">Welcome to GithubScrapper</h1>
-        <p class="lead">Your ultimate tool for scraping GitHub repositories easily and efficiently!</p>
+<div class="container py-5">
+    <section class="hero-section text-center mb-5 p-5 rounded shadow-lg bg-gradient" style="background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);">
+        <h1 class="display-3 fw-bold mb-3" style="color: #2d3748;">Welcome to <span style="color: #6366f1;">GithubScrapper</span></h1>
+        <p class="lead mb-4" style="color: #4b5563;">Your ultimate tool for scraping GitHub repositories easily and efficiently!</p>
         @if (!User.Identity.IsAuthenticated)
         {
-            <h2>How it Works</h2>
-            <p>GithubScrapper allows you to easily scrape public GitHub repository data. Simply login and start scraping repositories to gather information for your projects!</p>
+            <h2 class="h4 mt-4" style="color: #6366f1;">How it Works</h2>
+            <p class="mb-0" style="color: #6b7280;">GithubScrapper allows you to easily scrape public GitHub repository data. Simply login and start scraping repositories to gather information for your projects!</p>
         }
     </section>
 
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card mt-5">
-                <div class="card-body">
+            <div class="card border-0 shadow-lg mt-5" style="border-radius: 1.5rem;">
+                <div class="card-body p-5">
                     @if (!User.Identity.IsAuthenticated)
                     {
-                        <h2>Authentication</h2>
-                        <p>Login to access advanced features and start scraping your favorite repositories!</p>
+                        <h2 class="h4 mb-3" style="color: #6366f1;">Authentication</h2>
+                        <p class="mb-4" style="color: #6b7280;">Login to access advanced features and start scraping your favorite repositories!</p>
                     }
 
-                    <section class="container mt-5 text-center">
+                    <section class="container mt-4 text-center">
                         @if (User.Identity.IsAuthenticated)
                         {
-
-                                <h2>How it Works</h2>
-                                <p>GithubScrapper allows you to easily scrape public GitHub repository data. Simply login and start scraping repositories to gather information for your projects!</p>
-                                <a href="/Github/ScrapeRepositories" class="btn btn-primary">Start Scraping</a>
-
+                            <h2 class="h4 mb-3" style="color: #6366f1;">How it Works</h2>
+                            <p class="mb-4" style="color: #6b7280;">GithubScrapper allows you to easily scrape public GitHub repository data. Simply login and start scraping repositories to gather information for your projects!</p>
+                            <a href="/Github/ScrapeRepositories" class="btn btn-lg btn-primary px-5 py-2 shadow-sm" style="border-radius: 2rem; background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%); border: none;">Start Scraping</a>
                         }
                         else
                         {
-                            <p><a class="btn btn-primary mt-3" asp-controller="Account" asp-action="Login">Login with GitHub</a></p>
+                            <a class="btn btn-lg btn-primary mt-3 px-5 py-2 shadow-sm" asp-controller="Account" asp-action="Login" style="border-radius: 2rem; background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%); border: none;">Login with GitHub</a>
                         }
                     </section>
                 </div>
@@ -42,5 +40,7 @@
         </div>
     </div>
 </div>
+
+<!-- Modern look: gradients, rounded corners, shadow, larger buttons, and color highlights. -->
 
 
