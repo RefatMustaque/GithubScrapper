@@ -93,6 +93,8 @@
         });
 
         function ScrapeRepository(e) {
+            // Clear any previous rate limit message before showing loader
+            $("#rateLimitInfoModalId").text("");
             $("#rateLimitInfoModalId").show();
 
             e.preventDefault();
