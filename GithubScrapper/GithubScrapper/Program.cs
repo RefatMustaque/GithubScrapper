@@ -33,8 +33,8 @@ builder.Services.AddAuthentication(options =>
 .AddOAuth("GitHub", options =>
 {
     var githubConfig = builder.Configuration.GetSection("Authentication:GitHub");
-    options.ClientId = githubConfig["ClientId"];
-    options.ClientSecret = githubConfig["ClientSecret"];
+    options.ClientId = githubConfig["ClientId"] ?? string.Empty;
+    options.ClientSecret = githubConfig["ClientSecret"] ?? string.Empty;
     options.CallbackPath = @"/Account/Callback";
 
     options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
@@ -54,8 +54,11 @@ builder.Services.AddAuthentication(options =>
             var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
             request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", context.AccessToken);
-            // Save the access token as a claim
-            context.Identity.AddClaim(new Claim("access_token", context.AccessToken));
+            // Save the access token as a claim, only if not null
+            if (context.Identity != null && context.AccessToken != null)
+            {
+                context.Identity.AddClaim(new Claim("access_token", context.AccessToken));
+            }
 
             var response = await context.Backchannel.SendAsync(request);
             response.EnsureSuccessStatusCode();

@@ -21,7 +21,7 @@ namespace GitHubScrapper.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetRateLimitStatus()
         {
-            if(User.Identity.IsAuthenticated)
+            if(User?.Identity?.IsAuthenticated == true)
             {
                 // GitHub Client Initialization
                 var client = new GitHubClient(new ProductHeaderValue("GitHubToText"));
@@ -73,7 +73,7 @@ namespace GitHubScrapper.Controllers
         [HttpPost]
         public async Task<IActionResult> ExtractRepositories(string owner, string repoName, string[] fileExtensions, string fileType)
         {
-            if (!User.Identity.IsAuthenticated)
+            if (User?.Identity?.IsAuthenticated != true)
             {
                 return Json(new
                 {
@@ -102,7 +102,8 @@ namespace GitHubScrapper.Controllers
                     client.Credentials = new Credentials(token); // Authenticate using the access token
 
                     // Check the rate limits
-                    var rateLimit = await client.Miscellaneous.GetRateLimits();
+                    // Use the recommended RateLimitClient instead of the obsolete Miscellaneous.GetRateLimits()
+                    var rateLimit = await client.RateLimit.GetRateLimits();
 
                     // Display the remaining requests and the reset time
                     Console.WriteLine($"Remaining requests: {rateLimit.Resources.Core.Remaining}");
@@ -122,7 +123,7 @@ namespace GitHubScrapper.Controllers
                     });
                 }
 
-                string filePath = null;
+                string? filePath = null;
                 // Generate a unique file name for the output file
                 if (fileType.Trim().ToLower() == "html".ToLower())
                 {

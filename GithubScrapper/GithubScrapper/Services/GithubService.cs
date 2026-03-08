@@ -71,132 +71,79 @@ public class GithubService : IGithubService
     private bool IsCodeFile(string filePath, List<string> selectedExtensions)
     {
         // Get the file extension (case-insensitive)
-        string fileExtension = Path.GetExtension(filePath)?.ToLower();
-
+        string? fileExtension = Path.GetExtension(filePath)?.ToLower();
         // Check if the file extension matches one of the selected valid extensions
-        return selectedExtensions.Contains(fileExtension);
+        return fileExtension != null && selectedExtensions.Contains(fileExtension);
     }
 
     public async Task<IReadOnlyList<RepositoryContent>> GetRepositoryContentsRecursively(
-        GitHubClient client, string owner, string repoName, List<string> selectedExtensions, string path = null)
+        GitHubClient client, string owner, string repoName, List<string> selectedExtensions, string? path = null)
     {
         var rateLimit = await client.RateLimit.GetRateLimits();
         var contents = new List<RepositoryContent>();
+        // Validate selected extensions
+        var validExtensions = GetValidExtensions();
+        selectedExtensions = selectedExtensions
+            .Where(ext => validExtensions.Contains(ext.ToLower()))
+            .ToList();
+
+        if (!selectedExtensions.Any())
+        {
+            throw new ArgumentException("No valid extensions provided in the selected extensions.");
+        }
+
         try
         {
-            // Fetch rate limits from GitHub
-
-            // Validate selected extensions
-            var validExtensions = GetValidExtensions();
-            selectedExtensions = selectedExtensions
-                .Where(ext => validExtensions.Contains(ext.ToLower()))
-                .ToList();
-
-            if (!selectedExtensions.Any())
+            IReadOnlyList<RepositoryContent> repoContents = await GetRepoContentsWithRateLimit(client, owner, repoName, path, rateLimit.Resources.Core);
+            Console.WriteLine($"Fetching contents for repository: {repoName}");
+            Console.WriteLine($"Found {repoContents.Count} items in the repository root.");
+            foreach (var content in repoContents)
             {
-                throw new ArgumentException("No valid extensions provided in the selected extensions.");
-            }
-
-            try
-            {
-
-                // Fetch the contents of the current directory or subdirectory
-                IReadOnlyList<RepositoryContent> repoContents;
-                if (string.IsNullOrEmpty(path))
+                try
                 {
-                    if(rateLimit.Resources.Core.Remaining > 0)
+                    if (content.Type == Octokit.ContentType.Dir)
                     {
-                        repoContents = await client.Repository.Content.GetAllContents(owner, repoName);
+                        var subContents = await GetRepositoryContentsRecursively(
+                            client, owner, repoName, selectedExtensions, content.Path);
+                        contents.AddRange(subContents);
                     }
-                    else
+                    else if (IsCodeFile(content.Path, selectedExtensions))
                     {
-                        repoContents = new List<RepositoryContent>();
+                        contents.Add(content);
                     }
                 }
-                else
+                catch (Exception)
                 {
-                    if (rateLimit.Resources.Core.Remaining > 0)
-                    {
-                        repoContents = await client.Repository.Content.GetAllContents(owner, repoName, path);
-                    }
-                    else
-                    {
-                        repoContents = new List<RepositoryContent>();
-                    }
+                    // Swallow exception, or optionally log
                 }
-
-                Console.WriteLine($"Fetching contents for repository: {repoName}");
-                Console.WriteLine($"Found {repoContents.Count} items in the repository root.");
-
-                foreach (var content in repoContents)
-                {
-                    try
-                    {
-                        if (content.Type == Octokit.ContentType.Dir)
-                        {
-                            // If the content is a directory, recurse into it to fetch its contents
-                            var subContents = await GetRepositoryContentsRecursively(
-                                client, owner, repoName, selectedExtensions, content.Path);
-                            contents.AddRange(subContents); // Add subdirectory contents
-                        }
-                        else if (IsCodeFile(content.Path, selectedExtensions)) // Ensure the file matches the selected extensions
-                        {
-                            contents.Add(content);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching contents for repository {repoName}: {ex.Message}");
             }
         }
         catch (Exception ex)
         {
-            contents = new List<RepositoryContent>();
+            Console.WriteLine($"Error fetching contents for repository {repoName}: {ex.Message}");
         }
-
-
         return contents;
     }
 
-    //public async Task<IReadOnlyList<RepositoryContent>> GetRepositoryContents(
-    //GitHubClient client, string owner, string repoName, List<string> selectedExtensions)
-    //{
-    //    var contents = new List<RepositoryContent>();
-    //    var validExtensions = GetValidExtensions();
-
-    //    // Filter valid extensions
-    //    selectedExtensions = selectedExtensions
-    //        .Where(ext => validExtensions.Contains(ext.ToLower()))
-    //        .ToList();
-
-    //    if (!selectedExtensions.Any())
-    //    {
-    //        throw new ArgumentException("No valid extensions provided in the selected extensions.");
-    //    }
-
-    //    try
-    //    {
-    //        // Fetch the repository tree
-    //        var tree = await client.Repository.Content.GetAllContentsByRef(owner, repoName, "master");
-
-    //        // Filter files based on extensions
-    //        contents = tree
-    //            .Where(content => content.Type == Octokit.ContentType.File && IsCodeFile(content.Path, selectedExtensions))
-    //            .ToList();
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Console.WriteLine($"Error fetching repository contents: {ex.Message}");
-    //    }
-
-    //    return contents;
-    //}
+    // Helper method to fetch repo contents with rate limit check
+    private async Task<IReadOnlyList<RepositoryContent>> GetRepoContentsWithRateLimit(GitHubClient client, string owner, string repoName, string? path, Octokit.RateLimit rateLimit)
+    {
+        if (rateLimit.Remaining > 0)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return await client.Repository.Content.GetAllContents(owner, repoName);
+            }
+            else
+            {
+                return await client.Repository.Content.GetAllContents(owner, repoName, path);
+            }
+        }
+        else
+        {
+            return new List<RepositoryContent>();
+        }
+    }
 
     public async Task AppendContentToFile(GitHubClient client, string owner, string repoName, RepositoryContent content, string filePath)
     {
@@ -204,23 +151,18 @@ public class GithubService : IGithubService
 
         try
         {
-            byte[] fileContentBytes = new byte[0];
-
-            // Check if we have remaining API calls
+            byte[] fileContentBytes;
             if (rateLimit.Resources.Core.Remaining > 0)
             {
-                // Fetch the raw content of the file
                 fileContentBytes = await client.Repository.Content.GetRawContent(owner, repoName, content.Path);
             }
             else
             {
-                fileContentBytes = new byte[0]; // Empty array if no remaining API calls
+                fileContentBytes = Array.Empty<byte>();
             }
 
-            // Convert the byte array to string (assuming UTF-8 encoding)
             string fileContent = Encoding.UTF8.GetString(fileContentBytes);
 
-            // Append the file content to the existing file
             await using (var writer = new StreamWriter(filePath, append: true))
             {
                 writer.WriteLine($"--- File: {content.Path} ---");
@@ -230,7 +172,6 @@ public class GithubService : IGithubService
         }
         catch (Exception ex)
         {
-            // Handle any errors by appending an error message to the file
             await using (var writer = new StreamWriter(filePath, append: true))
             {
                 writer.WriteLine($"--- File: {content.Path} ---");

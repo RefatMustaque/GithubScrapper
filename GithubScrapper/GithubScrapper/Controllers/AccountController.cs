@@ -26,22 +26,27 @@ namespace GitHubScrapper.Controllers
 
             // 2. Optionally, remove GitHub-related claims if needed (this is optional)
             // This step is not strictly necessary but may be useful in some cases.
-            var identity = (ClaimsIdentity)User.Identity;
-            var githubClaim = identity.Claims.First(c => c.Type == "urn:github:login");
-            if (githubClaim != null)
+            var identity = User.Identity as ClaimsIdentity;
+            if (identity != null)
             {
-                identity.RemoveClaim(githubClaim);
+                var githubClaim = identity.Claims.FirstOrDefault(c => c.Type == "urn:github:login");
+                if (githubClaim != null)
+                {
+                    identity.RemoveClaim(githubClaim);
+                }
             }
 
             // 3. Explicitly delete cookies related to GitHub OAuth session (if any)
             var cookieName = HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<CookieAuthenticationOptions>>()
                 .Get(CookieAuthenticationDefaults.AuthenticationScheme).Cookie.Name;
-
-            Response.Cookies.Delete(cookieName, new CookieOptions
+            if (!string.IsNullOrEmpty(cookieName))
             {
-                Expires = DateTime.UtcNow.AddDays(-1),
-                Path = "/"
-            });
+                Response.Cookies.Delete(cookieName, new CookieOptions
+                {
+                    Expires = DateTime.UtcNow.AddDays(-1),
+                    Path = "/"
+                });
+            }
 
             // 4. Clear any session data (optional)
             HttpContext.Session.Clear();
@@ -63,7 +68,7 @@ namespace GitHubScrapper.Controllers
             }
 
             // Authentication succeeded, process user data if necessary
-            var userName = authenticateResult.Principal.Identity.Name;
+            var userName = authenticateResult.Principal?.Identity?.Name;
 
             // You could store the user information here in your session or database
 

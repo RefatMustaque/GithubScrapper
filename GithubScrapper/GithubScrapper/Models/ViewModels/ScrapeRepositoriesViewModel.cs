@@ -2,6 +2,6 @@
 {
     public class ScrapeRepositoriesViewModel
     {
-        public string[] ValidExtensions { get; set; }
+        public string[] ValidExtensions { get; set; } = Array.Empty<string>();
     }
 }

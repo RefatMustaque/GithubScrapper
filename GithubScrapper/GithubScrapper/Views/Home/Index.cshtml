@@ -1,5 +1,6 @@
 ﻿@{
     ViewData["Title"] = "";
+    var isAuthenticated = User?.Identity is { IsAuthenticated: true };
 }
 
 <div class="container py-5">
@@ -8,7 +9,7 @@
             <div class="col-lg-6 mb-4 mb-lg-0">
                 <h1 class="display-3 fw-bold mb-3" style="color: #2d3748;">Welcome to <span style="color: #6366f1;">GitHub Scrapper</span></h1>
                 <p class="lead mb-4" style="color: #4b5563;">Your ultimate tool for scraping GitHub repositories easily and efficiently!</p>
-                @if (!User.Identity.IsAuthenticated)
+                @if (!isAuthenticated)
                 {
                     <h2 class="h4 mt-4" style="color: #6366f1;">How it Works</h2>
                     <p class="mb-0" style="color: #6b7280;">GitHub Scrapper allows you to easily scrape public GitHub repository data. Simply login and start scraping repositories to gather information for your projects! You can download your results as a single TXT file or an interactive HTML file.</p>
@@ -24,14 +25,14 @@
         <div class="col-md-8">
             <div class="card border-0 shadow-lg mt-5" style="border-radius: 1.5rem;">
                 <div class="card-body p-5">
-                    @if (!User.Identity.IsAuthenticated)
+                    @if (!isAuthenticated)
                     {
                         <h2 class="h4 mb-3" style="color: #6366f1;">Authentication</h2>
                         <p class="mb-4" style="color: #6b7280;">Login to access advanced features and start scraping your favorite repositories!</p>
                     }
 
                     <section class="container mt-4 text-center">
-                        @if (User.Identity.IsAuthenticated)
+                        @if (isAuthenticated)
                         {
                             <h2 class="h4 mb-3" style="color: #6366f1;">How it works</h2>
                             <p class="mb-4" style="color: #6b7280;">GitHub Scrapper allows you to easily scrape public GitHub repository data. Simply login and start scraping repositories to gather information for your projects! You can download your results as a single TXT file or an interactive HTML file.</p>
