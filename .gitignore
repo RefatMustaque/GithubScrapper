@@ -400,3 +400,7 @@ FodyWeavers.xsd
 /GithubScrapper/GithubScrapper/appsettings.json
 /GithubScrapper/GithubScrapper/appfiles/downloads/RefatMustaque
 /GithubScrapper/GithubScrapper/.config
+.DS_Store
+GithubScrapper/.DS_Store
+GithubScrapper/.DS_Store
+GithubScrapper/GithubScrapper/.DS_Store

@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="icon" type="image/jpeg" href="~/images/logo.jpg" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/GithubScrapper.styles.css" asp-append-version="true" />
+    <!-- <link rel="stylesheet" href="~/GithubScrapper.styles.css" asp-append-version="true" /> -->
     <link rel="icon" type="image/jpeg" sizes="64x64" href="~/images/logo.jpg" />
 
 
@@ -83,12 +83,11 @@
         </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container text-center d-flex flex-column flex-md-row align-items-center justify-content-center gap-2">
-            <img src="~/images/logo.jpg" alt="Logo" style="height: 2rem; width: 2rem; object-fit: cover; border-radius: 0.5rem; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" class="me-2" />
-                <span>&copy; @DateTime.Now.Year - GitHub Scrapper</span>
-            <span>|</span>
-            <a asp-area="" asp-controller="Home" asp-action="Privacy" class="link-primary text-decoration-underline">Privacy Policy</a>
+    <footer class="border-top footer text-muted modern-footer">
+        <div class="container modern-footer-content">
+            <span class="footer-copyright">&copy; @DateTime.Now.Year GitHub Scrapper</span>
+            <span class="footer-sep">|</span>
+            <a asp-area="" asp-controller="Home" asp-action="Privacy" class="footer-link">Privacy Policy</a>
         </div>
     </footer>
 
