@@ -8,9 +8,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/GithubScrapper/GithubScrapper/GithubScrapper/bin/Debug/net8.0/GithubScrapper.dll",
+            "program": "${workspaceFolder}/GithubScrapper/bin/Debug/net8.0/GithubScrapper.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/GithubScrapper/GithubScrapper/GithubScrapper",
+            "cwd": "${workspaceFolder}/GithubScrapper",
             "stopAtEntry": false,
             "serverReadyAction": {
                 "action": "openExternally",

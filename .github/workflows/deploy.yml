@@ -29,10 +29,10 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore          # Step: Restore NuGet packages
-        run: dotnet restore GithubScrapper/GithubScrapper/GithubScrapper.csproj
+        run: dotnet restore GithubScrapper/GithubScrapper.csproj
 
       - name: Publish          # Step: Build and publish app to ./publish
-        run: dotnet publish GithubScrapper/GithubScrapper/GithubScrapper.csproj -c Release -o ./publish
+        run: dotnet publish GithubScrapper/GithubScrapper.csproj -c Release -o ./publish
 
       - name: Start SSH Agent  # Step: Start SSH agent for key-based auth
         uses: webfactory/ssh-agent@v0.9.0

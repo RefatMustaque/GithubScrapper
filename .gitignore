@@ -397,12 +397,17 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /PublishedCode
-/GithubScrapper/GithubScrapper/appsettings.json
-/GithubScrapper/GithubScrapper/appfiles/downloads/RefatMustaque
-/GithubScrapper/GithubScrapper/.config
+/GithubScrapper/appsettings.json
+/GithubScrapper/AppFiles/downloads/RefatMustaque
+/GithubScrapper/.config
+
+# macOS
 .DS_Store
-GithubScrapper/.DS_Store
-GithubScrapper/.DS_Store
-GithubScrapper/GithubScrapper/.DS_Store
-GithubScrapper/.DS_Store
-GithubScrapper/GithubScrapper/.DS_Store
+
+# Secrets
+.env
+.env.*
+
+# Claude Code / plans (never commit)
+.claude/
+ClaudePlan/
